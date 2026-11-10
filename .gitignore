@@ -1,0 +1,8 @@
+/build*/
+/CMakeUserPresets.json
+/compile_commands.json
+/dist/
+__pycache__/
+*.user
+*.swp
+*~

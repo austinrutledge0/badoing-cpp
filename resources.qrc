@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="assets/frames.png">assets/frames.png</file>
+        <file alias="assets/badoing.wav">assets/badoing.wav</file>
+        <file alias="icons/badoing-pet.svg">packaging/badoing-pet.svg</file>
+    </qresource>
+</RCC>

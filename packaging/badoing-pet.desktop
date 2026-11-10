@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=BADOING
+GenericName=Desktop Pet
+Comment=A small animated companion for your Linux desktop
+Exec=badoing-pet
+Icon=badoing-pet
+Terminal=false
+Categories=Game;Amusement;
+Keywords=desktop;pet;companion;badoing;
+StartupNotify=false
+StartupWMClass=badoing-pet

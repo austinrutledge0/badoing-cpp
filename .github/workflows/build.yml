@@ -1,0 +1,74 @@
+name: Build and package
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.os }} / sound=${{ matrix.sound }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15, macos-15-intel]
+        sound: ['ON', 'OFF']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Configure MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          modules: qtmultimedia
+          cache: true
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBADOING_ENABLE_SOUND=${{ matrix.sound }}
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure
+      - name: Install to a path with spaces
+        run: cmake --install build --prefix "${{ github.workspace }}/installed app"
+      - name: Verify Linux installation
+        if: runner.os == 'Linux'
+        run: python scripts/verify-install.py "${{ github.workspace }}/installed app"
+      - name: Verify bundled installation
+        if: runner.os != 'Linux'
+        run: python scripts/verify-install.py "${{ github.workspace }}/installed app" --bundled-qt
+      - name: Verify command helper and login registration
+        run: python tests/test_helper.py "${{ github.workspace }}/installed app"
+      - name: Package
+        run: cmake --build build --target package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: badoing-cpp-${{ matrix.os }}-sound-${{ matrix.sound }}
+          path: build/packages/badoing-cpp-*
+          if-no-files-found: error
+
+  qt5:
+    name: Linux / Qt 5.15
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build qtbase5-dev qtmultimedia5-dev
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_DISABLE_FIND_PACKAGE_Qt6=ON
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure

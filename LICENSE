@@ -1,6 +1,12 @@
 MIT License
 
 Copyright (c) 2026 Austin Rutledge
+Copyright (c) 2026 BADOING Linux contributors
+
+Scope: This license covers the new C++ implementation, build files, tests,
+documentation, and neutral SVG application icon in this repository. It does
+not cover files in assets/ or reference/. See the credits and licensing
+section in README.md for their attribution.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

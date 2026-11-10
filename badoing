@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+platform=$(uname -s)
+case "$platform" in
+    Linux)
+        default_prefix="$HOME/.local"
+        ;;
+    Darwin)
+        default_prefix="$HOME/Applications/BADOING"
+        ;;
+    *) printf 'Use badoing.ps1 on Windows.\n' >&2; exit 1 ;;
+esac
+prefix=${BADOING_PREFIX:-$default_prefix}
+build_dir=${BADOING_BUILD_DIR:-$repo/build}
+case "$prefix" in /*) ;; *) prefix="$PWD/$prefix" ;; esac
+case "$build_dir" in /*) ;; *) build_dir="$PWD/$build_dir" ;; esac
+if [[ "$platform" == Darwin ]]; then
+    app="$prefix/badoing-pet.app/Contents/MacOS/badoing-pet"
+else
+    app="$prefix/bin/badoing-pet"
+fi
+
+fail() { printf '%s\n' "$*" >&2; exit 1; }
+require_app() { [[ -x "$app" ]] || fail "Install first: $app was not found or is not executable."; }
+
+build_app() {
+    cmake -S "$repo" -B "$build_dir" -DCMAKE_BUILD_TYPE=Release \
+        "-DBADOING_ENABLE_SOUND=${BADOING_SOUND:-ON}"
+    cmake --build "$build_dir" --config Release --parallel
+}
+
+enable_login() {
+    require_app
+    "$app" --login on "$@"
+    printf 'Enabled for the next login.\n'
+}
+
+install_app() {
+    if [[ $# -gt 0 && "$1" != --login ]]; then fail 'Usage: ./badoing install [--login [app arguments...]]'; fi
+    build_app
+    cmake --install "$build_dir" --config Release --prefix "$prefix"
+    if [[ $# -gt 0 ]]; then shift; enable_login "$@"; fi
+}
+
+command=${1:-help}
+if [[ $# -gt 0 ]]; then shift; fi
+case "$command" in
+    help|--help|-h)
+        cat <<'USAGE'
+Usage: ./badoing COMMAND
+  pull                       Pull this checkout with git pull --ff-only
+  build                      Configure and compile
+  test                       Build and run the tests
+  install [--login [args...]] Build and install; optionally enable login startup
+  update [--login [args...]]  Pull, build, and install
+  run [args...]              Run the installed pet once
+  login on [args...]         Start at the next desktop login
+  login off                  Disable future login startup; leave the running pet alone
+  login status               Show whether login startup is enabled
+
+Optional environment: BADOING_PREFIX, BADOING_BUILD_DIR, BADOING_SOUND=ON|OFF,
+CMAKE_PREFIX_PATH (Qt SDK). Defaults install for your user with sound enabled.
+USAGE
+        ;;
+    pull) [[ $# -eq 0 ]] || fail 'Usage: ./badoing pull'; git -C "$repo" pull --ff-only ;;
+    build) [[ $# -eq 0 ]] || fail 'Usage: ./badoing build'; build_app ;;
+    test)
+        [[ $# -eq 0 ]] || fail 'Usage: ./badoing test'
+        build_app
+        (cd "$build_dir" && ctest -C Release --output-on-failure)
+        ;;
+    install) install_app "$@" ;;
+    update)
+        if [[ $# -gt 0 && "$1" != --login ]]; then fail 'Usage: ./badoing update [--login [args...]]'; fi
+        git -C "$repo" pull --ff-only
+        install_app "$@"
+        ;;
+    run) require_app; exec "$app" "$@" ;;
+    login)
+        action=${1:-status}
+        if [[ $# -gt 0 ]]; then shift; fi
+        require_app
+        case "$action" in
+            on) enable_login "$@" ;;
+            off)
+                [[ $# -eq 0 ]] || fail 'Usage: ./badoing login off'
+                "$app" --login off
+                printf 'Disabled future login startup.\n'
+                ;;
+            status)
+                [[ $# -eq 0 ]] || fail 'Usage: ./badoing login status'
+                if "$app" --login status; then
+                    printf 'Enabled\n'
+                else
+                    result=$?
+                    if [[ "$result" -eq 3 ]]; then printf 'Disabled\n'; else exit "$result"; fi
+                fi
+                ;;
+            *) fail 'Usage: ./badoing login on|off|status' ;;
+        esac
+        ;;
+    *) fail "Unknown command: $command. Run ./badoing help." ;;
+esac
