@@ -8,6 +8,21 @@ A desktop pet for Linux, Windows, and macOS, built with C++ and Qt Widgets.
 Click for a badoing, drag to move, and right-click for settings and quit.
 The artwork and audio are embedded, and the app works offline.
 
+## Credits and licensing
+
+The Sassy the Sasquatch character, artwork, animation frames, images, and sound
+used here are credited to [The Big Lez Show](https://en.wikipedia.org/wiki/The_Big_Lez_Show)
+and its creators, Jarrad Wright, Tom Hollis, and Izak Whear. Jarrad Wright voices
+Sassy.
+
+This C++ port is based on [danmm1994/BADOING](https://github.com/danmm1994/BADOING).
+
+This is an unofficial fan port. The supplied Windows source and third-party
+artwork and audio retain their original owners' rights. The [MIT license](LICENSE)
+covers the new C++ port code and does not grant rights to the third-party media.
+
+## Build from source
+
 Build and install from source using the [installation and build guide](INSTALL.md).
 The same source tree builds on all three operating systems.
 
@@ -132,13 +147,3 @@ A separate Linux job checks Qt 5.15 compatibility. Pushes and pull requests to
 - `packaging/`: Linux desktop files and the macOS bundle manifest.
 - `reference/`: the supplied Windows source and README.
 - `docs/PORTING.md`: platform behavior and troubleshooting.
-
-## Credits and licensing
-
-This C++ port is based on [danmm1994/BADOING](https://github.com/danmm1994/BADOING).
-
-New C++ port code is provided under the [MIT license](LICENSE). The supplied
-Windows source and bundled artwork and audio retain their original owners'
-rights. The supplied README credits **Sassy the Sasquatch / The Big Lez Show**
-for the character artwork and audio. This is an unofficial fan port. The code
-license does not grant a license to the third-party media.
