@@ -1,101 +1,4 @@
-# Install, compile, and package badoing-cpp
-
-## Install a download
-
-Open the [latest release](https://github.com/austinrutledge0/badoing-cpp/releases/latest). Under **Assets**,
-download your platform's package. GitHub's **Source code** archives contain source
-files and require compilation. Release packages appear after the first successful
-release workflow on `master`.
-
-### Linux x86_64 on Ubuntu 24.04
-
-Download `badoing-linux-ubuntu24.04-amd64.deb`. Open a terminal in its download
-directory and run:
-
-```sh
-sudo apt install ./badoing-linux-ubuntu24.04-amd64.deb
-badoing-pet
-```
-
-Apt installs the matching Qt runtime libraries and X11 and Wayland plugins.
-The package also adds **BADOING** to your application menu. No compiler or Qt
-development packages are required. This package targets Ubuntu 24.04 on x86_64.
-Other Ubuntu releases may work if their packages satisfy the dependencies.
-For other Linux distributions or architectures, use the source build instructions
-below.
-
-### Windows x64
-
-Download `badoing-windows-x64.zip` and extract it to a permanent directory,
-such as `%LOCALAPPDATA%\Programs\BADOING`. Open `bin\badoing-pet.exe` inside
-that directory. Keep all extracted files together. The ZIP includes Qt DLLs,
-platform and audio plugins, and the compiler runtime. You do not need to install
-Qt or a compiler.
-
-The Windows executable has no publisher signature. Windows may show an
-unrecognized-app prompt. Check that you downloaded it from this repository's
-release before deciding whether to run it.
-
-### Update or remove a download
-
-Quit the pet before updating. On Linux, download the new `.deb` and repeat
-the `sudo apt install ./badoing-linux-ubuntu24.04-amd64.deb` command. On Windows,
-replace the whole extracted directory with the new ZIP's contents. Keep the
-same directory path to preserve any login startup entry. Updates retain your
-settings and counter.
-
-To start automatically, right-click the pet and check **Start at login**.
-If you move the Windows directory, enable the option again from the new copy.
-Before removing a download, uncheck **Start at login** and quit the pet.
-Remove the Linux package with `sudo apt remove badoing-cpp`, or delete the
-extracted Windows directory. Removal preserves your per-user settings.
-
-Each release includes `SHA256SUMS`. To check a Linux download, compare its output
-from `sha256sum badoing-linux-ubuntu24.04-amd64.deb` with that file. On Windows,
-use `Get-FileHash .\badoing-windows-x64.zip -Algorithm SHA256` in PowerShell.
-
-## Publish downloads from master
-
-The [release workflow](.github/workflows/release.yml) uses GitHub Actions' `push`
-event to build and publish packages whenever you push to `master`. GitHub hosts
-the Linux and Windows build machines. No separate webhook server is required.
-
-To enable it in [austinrutledge0/badoing-cpp](https://github.com/austinrutledge0/badoing-cpp):
-
-1. Commit and push this source tree, including `.github/workflows/release.yml`,
-   to the repository's `master` branch.
-2. In [Settings > Actions > General](https://github.com/austinrutledge0/badoing-cpp/settings/actions),
-   enable GitHub Actions and allow the actions used by the workflow if restricted.
-3. Open [Actions > Publish Linux and Windows](https://github.com/austinrutledge0/badoing-cpp/actions/workflows/release.yml)
-   to follow the build. After both platform jobs pass, open
-   [Releases](https://github.com/austinrutledge0/badoing-cpp/releases) for downloads.
-
-The publish job requests `contents: write` for GitHub's automatic `GITHUB_TOKEN`.
-No personal access token or repository secret is required. Repository or
-organization policies must allow that permission and the workflow's actions.
-The compile jobs have read access to repository contents.
-
-The Linux job builds with Ubuntu 24.04's Qt packages and creates a `.deb` with
-runtime dependencies. It installs that package and runs the installed preview
-and helper checks. The Windows job builds with MSVC and Qt 6.8.3, bundles Qt and
-compiler runtimes, and runs the same checks on the extracted ZIP. Its preview
-check removes Qt development paths from the child process environment.
-Both jobs run CTest before packaging.
-
-Each successful run creates a release tagged `master-RUN_NUMBER-RUN_ATTEMPT`
-at the exact built commit, marks it **Latest**, and includes both packages,
-checksums, and a link to the build log. Failed builds do not publish a release.
-A newer run on the same branch cancels an unfinished run, and the publish step
-skips older commits if `master` has moved. Previous releases remain available.
-
-To rebuild without a push, select **Actions > Publish Linux and Windows > Run
-workflow**, then select `master`. Manual runs on other branches skip the jobs.
-Pull requests and tag pushes do not trigger this workflow. The separate
-[build workflow](.github/workflows/build.yml) continues to check Linux, Windows,
-and macOS; its macOS packages remain workflow artifacts. GitHub hosts those
-macOS runners too, so you do not need your own Mac.
-
-## Build from source
+# Compile, install, and package badoing-cpp
 
 Run commands from the directory containing `CMakeLists.txt`. Build each release
 on its target operating system with a matching compiler and Qt installation.
@@ -108,7 +11,7 @@ Install your platform's dependencies from the sections below first. Clone
 with Git, then enter the checkout:
 
 ```sh
-git clone --branch master https://github.com/austinrutledge0/badoing-cpp.git
+git clone --branch main https://github.com/austinrutledge0/badoing-cpp.git
 cd badoing-cpp
 ```
 
@@ -443,7 +346,8 @@ environment and launches the installed executable using the native platform
 plugin. Run it in a desktop session. It writes only a temporary preview PNG.
 Check dragging, sound, scaling, and window stacking manually on each desktop.
 
-The GitHub Actions workflow runs these checks and uploads the platform packages.
+The [build workflow](.github/workflows/build.yml) defines these installation
+checks for GitHub Actions.
 
 ## Remove an installation
 

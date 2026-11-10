@@ -8,22 +8,8 @@ A desktop pet for Linux, Windows, and macOS, built with C++ and Qt Widgets.
 Click for a badoing, drag to move, and right-click for settings and quit.
 The artwork and audio are embedded, and the app works offline.
 
-## Install a download
-
-Open the [latest release](https://github.com/austinrutledge0/badoing-cpp/releases/latest) and expand **Assets**.
-Choose the package for your system:
-
-| System | Download | Install and run |
-| --- | --- | --- |
-| Linux x86_64, Ubuntu 24.04 | `badoing-linux-ubuntu24.04-amd64.deb` | Run `sudo apt install ./badoing-linux-ubuntu24.04-amd64.deb`, then open **BADOING** from your application menu or run `badoing-pet`. Apt installs the Qt dependencies. |
-| Windows x64 | `badoing-windows-x64.zip` | Extract the ZIP and open `bin/badoing-pet.exe`. Keep the extracted files together; Qt and compiler runtimes are included. |
-
-Downloads appear after the first successful release workflow on `master`.
-See the [download guide](INSTALL.md#install-a-download) for updates and removal.
-For other Linux distributions, macOS, or development, build from source.
-
-Follow the [installation and build guide](INSTALL.md) for platform-specific
-build instructions. The same source tree builds on all three operating systems.
+Build and install from source using the [installation and build guide](INSTALL.md).
+The same source tree builds on all three operating systems.
 
 ## Use the command helper
 
@@ -128,26 +114,13 @@ positions and panel snapping:
 QT_QPA_PLATFORM=xcb ./build/badoing-pet
 ```
 
-## Builds and packages
+## Build checks
 
-The [release workflow](.github/workflows/release.yml) runs on pushes to `master`
-and can be started manually from GitHub's **Actions** tab. GitHub's Linux and
-Windows runners build with sound, run tests, and verify the packaged app before
-publishing both downloads and `SHA256SUMS` to a new GitHub Release. A failed
-platform job prevents publication, leaving the previous release available.
-See [release automation](INSTALL.md#publish-downloads-from-master) for setup.
-
-The [build workflow](.github/workflows/build.yml) builds Qt 6 with sound enabled
-and disabled on Linux, Windows, and both Apple Silicon and Intel macOS runners.
-It runs logic, widget, and command-line tests, checks an installed copy, and
-uploads platform packages as workflow artifacts. A separate Linux job checks
-Qt 5.15 compatibility. The workflow runs after this source is pushed to GitHub.
-
-The release workflow publishes a Linux `.deb` built against Ubuntu's Qt runtime
-packages and a Windows ZIP. The build workflow also produces Linux tar archives
-and macOS disk images as workflow artifacts. GitHub supplies the macOS runners,
-so a local Mac is not required for those builds. Packages have no publisher
-signing configured.
+The [build workflow](.github/workflows/build.yml) defines Qt 6 checks with sound
+enabled and disabled on Linux, Windows, and both Apple Silicon and Intel macOS
+runners. It includes logic, widget, command-line, and installation checks.
+A separate Linux job checks Qt 5.15 compatibility. Pushes and pull requests to
+`main` trigger these checks.
 
 ## Source layout
 
